@@ -1,54 +1,32 @@
-import csv
-from Package import *
-from HashTable import *
+from LoadCSV import *
 
-# opens the Distance CSV file
-with open("CSV/Distance.csv") as distance_file:
-    distance_data = csv.reader(distance_file)
-    distance_data = list(distance_data)
+# Loads the address data from CSV
+address_data = load_address_data('CSV/Addresses.csv')
 
-# # opens the Packages CSV file
-# with open("CSV/Packages.csv") as packages_file:
-#     packages_data = csv.reader(packages_file)
-#     packages_data = list(packages_data)
+# Loads the package data from CSV
+package_data = load_package_data('CSV/Packages.csv')
 
-# opens the Addresses CSV file
-with open("CSV/Addresses.csv") as Address_file:
-    Address_data = csv.reader(Address_file)
-    Address_data = list(Address_data)
+# Loads the distance data from CSV
+distance_data = load_distance_data()
 
 
-# Reads the csv file and puts the data into the hash table by package
-def load_package_data(csv_file):
-    with open(csv_file) as packages:
-        read_data = csv.reader(packages,
-                               delimiter=',')  # reads csv data with comma as the delimiter between attributes
-        package_table = HashTable()  # creates table
-
-        # Loops through each package in the csv file by its index and assigns its attributes
-        for package in read_data:
-            package_ID = package[0]
-            package_address = package[1]
-            package_city = package[2]
-            package_zip_code = package[4]
-            package_deadline = package[5]
-            package_weight_kilos = package[6]
-            package_delivery_status = "at the hub"  # uses this status as the default status
-
-            # creates an object for the package
-            package_object = Package(package_ID, package_address, package_city, package_zip_code,
-                                     package_deadline, package_weight_kilos, package_delivery_status)
-
-            # insert the object into the hash table
-            package_table.insert(package_ID, package_object)
-
-            # # prints list of all packages in the hash table
-            # HashTable.print(package_table, package_object.ID)
+# Determines the distance between the current address and the next address
+# Returns float distance
+def distance_between(current_address, next_address):
+    distance = distance_data[next_address][current_address]
+    if distance == '':
+        distance = distance_data[current_address][next_address]
+    return float(distance)
 
 
-# passes Packages.csv file into the load_pacakge_data method
-load_package_data('CSV/Packages.csv')
-
+# Determines the address with the minimum distance from the current address
+def min_distance_from(current_address, packages):
+    min_distance = None
+    for package in packages:
+        distance = distance_between(current_address, int(package[0]))
+        if min_distance is None or (distance < min_distance and distance != 0):
+            min_distance = distance
+    return min_distance
 
 
 
