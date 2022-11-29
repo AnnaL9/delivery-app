@@ -5,6 +5,7 @@ class HashTable:
     def __init__(self, initial_capacity=40):
         # initialize the hash table with empty bucket list entries.
         self.table = []
+        self.stored_keys = []  # stores keys as iterable list
         for i in range(initial_capacity):
             self.table.append([])
 
@@ -24,6 +25,7 @@ class HashTable:
         # if not, insert the item to the end of the bucket list.
         key_value = [key, item]
         bucket_list.append(key_value)
+        self.stored_keys.append(key)  # Adds the key to the list
         return True
 
     # Searches for an item with matching key in the hash table.
@@ -52,6 +54,7 @@ class HashTable:
             # print (key_value)
             if kv[0] == key:
                 bucket_list.remove([kv[0], kv[1]])
+                self.stored_keys.remove(key)  # removes key from iterable list
 
     # Prints searched item information
     def print(self, key):

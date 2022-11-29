@@ -20,13 +20,26 @@ def distance_between(current_address, next_address):
 
 
 # Determines the address with the minimum distance from the current address
-def min_distance_from(current_address, packages):
+def get_closest_package(current_address, packages_in_truck):
     min_distance = None
-    for package in packages:
-        distance = distance_between(current_address, int(package[0]))
+    closest_package = None
+    for package_ID in packages_in_truck.stored_keys:
+        package = packages_in_truck.search(package_ID)
+        package_address = package.address
+        package_address_object = None
+        for address in address_data:
+            if address.address == package_address:
+                package_address_object = address
+                break
+        distance = distance_between(current_address, int(package_address_object.ID))
         if min_distance is None or (distance < min_distance and distance != 0):
             min_distance = distance
-    return min_distance
+            closest_package = package
+    return closest_package
+
+
+# Testing min distance
+print(get_closest_package(1, package_data))
 
 
 
