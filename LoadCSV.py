@@ -1,4 +1,5 @@
 import csv
+import datetime
 from math import sqrt
 
 from Address import *
@@ -34,7 +35,7 @@ def load_address_data(csv_file):
 
 
 # Reads the csv file and puts the data into the hash table by package
-def load_package_data(csv_file):
+def load_package_data(csv_file, address_data):
     package_table = HashTable()  # creates table
     with open(csv_file) as packages:
         read_data = csv.reader(packages,
@@ -43,16 +44,21 @@ def load_package_data(csv_file):
         # Loops through each package in the csv file by its index and assigns its attributes
         for package in read_data:
             package_ID = package[0]
-            package_address = package[1]
+            for address in address_data:
+                if package[1] == address.address:
+                    package_address = address
+                    break
             package_city = package[2]
             package_zip_code = package[4]
             package_deadline = package[5]
             package_weight_kilos = package[6]
             package_delivery_status = "at the hub"  # uses this status as the default status
+            package_delivery_time = datetime.timedelta(hours=8)
 
             # creates an object for the package
             package_object = Package(package_ID, package_address, package_city, package_zip_code,
-                                     package_deadline, package_weight_kilos, package_delivery_status)
+                                     package_deadline, package_weight_kilos, package_delivery_status,
+                                     package_delivery_time)
 
             # insert the object into the hash table
             package_table.insert(package_ID, package_object)
