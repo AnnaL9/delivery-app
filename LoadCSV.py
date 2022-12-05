@@ -15,7 +15,7 @@ def load_distance_data():
     return distance_data
 
 
-# opens the Addresses CSV file and loads it into a list
+# opens the CSV file, creates an address object, and loads it into a list
 def load_address_data(csv_file):
     address_list = list() # creates list
     with open(csv_file, encoding='utf-8-sig') as addresses:
@@ -34,7 +34,7 @@ def load_address_data(csv_file):
     return address_list
 
 
-# Reads the csv file and puts the data into the hash table by package
+# Reads the csv file, creates a package object, and puts the data into the hash table by package
 def load_package_data(csv_file, address_data):
     package_table = HashTable()  # creates table
     with open(csv_file) as packages:
@@ -67,8 +67,4 @@ def load_package_data(csv_file, address_data):
             # HashTable.print(package_table, package_object.ID)
     return package_table
 
-# passes Packages.csv file into the load_pacakge_data method
-# load_package_data('CSV/Packages.csv')
 
-# print(address_data)
-# print(distance_data)
