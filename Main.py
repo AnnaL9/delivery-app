@@ -1,4 +1,4 @@
-import datetime
+# Author: Anna Lyons
 
 from LoadCSV import *
 from Truck import *
@@ -14,11 +14,12 @@ distance_data = load_distance_data()
 
 # Initiates Truck 1 object
 truck1 = Truck(16, 18.0, [], 0.0, address_data[0],
-               datetime.timedelta(hours=8), datetime.timedelta(hours=8))
+               datetime.timedelta(hours=8), datetime.timedelta(hours=8, minutes=0))
 
 # Initiates Truck 2 object
 truck2 = Truck(16, 18.0, [], 0.0, address_data[0],
-               datetime.timedelta(hours=8), datetime.timedelta(hours=8))
+               datetime.timedelta(hours=8), datetime.timedelta(hours=8, minutes=0))
+
 
 # Initiates Truck 3 object
 truck3 = Truck(16, 18.0, [], 0.0, address_data[0],
@@ -39,19 +40,9 @@ packages_at_hub = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'
                    '36', '37', '38', '39', '40']
 
 # Loads trucks with specified packages
-load_truck(truck1, ['1', '2', '4', '5', '7', '8', '10', '11', '12', '13', '14', '15', '16', '19', '20'])
-load_truck(truck2, ['3', '17', '18', '21', '22', '23', '24', '25', '27', '29', '30', '31', '33', '34', '36', '38'])
-load_truck(truck3, ['6', '26', '28', '32', '9', '35', '37', '39', '40'])
-
-
-# Determines if there is a time conflict with delivering package 9
-def package_time_conflict(current_package, truck):
-    # package = truck.packages.search(package_ID)
-    if (truck.current_time < datetime.timedelta(hours=10, minutes=20)) and \
-            (current_package.ID == '9'):
-        return True
-    else:
-        return False
+load_truck(truck1, ['1', '2', '4', '5', '7', '8', '10', '11', '12', '13', '14', '15', '16', '19', '20', '40'])
+load_truck(truck2, ['3', '17', '18', '21', '22', '23', '24', '25', '29', '30', '31', '33', '34', '36', '37', '38'])
+load_truck(truck3, ['6', '26', '27', '28', '32', '9', '35', '39'])
 
 
 # Determines the distance between the current address and the next address
@@ -69,14 +60,10 @@ def get_closest_package(current_address, packages_in_truck):
     closest_package_address = None
     current_address_ID = current_address.ID
     for package in packages_in_truck:
-        package_address = package.address.address
-        package_address_object = None
-        for address in address_data:
-            if address.address == package_address:
-                package_address_object = address
-                break
-        distance = distance_between(int(current_address_ID), int(package_address_object.ID))
-        if min_distance is None or (distance < min_distance and distance != 0.0):
+        distance = distance_between(int(current_address_ID), int(package.address.ID))
+        if current_address_ID == package.address.ID:
+            closest_package_address = package.address
+        elif min_distance is None or (distance < min_distance and distance != 0.0):
             min_distance = distance
             closest_package_address = package.address
     return closest_package_address
@@ -88,12 +75,14 @@ def deliver_packages(truck):
     not_delivered = truck.packages
     speed = truck.speed
 
-    for current_package in not_delivered:
-        if package_time_conflict(current_package, truck) is False:
+    if truck.current_time >= datetime.timedelta(hours=10, minutes=20):  # if current time is at least 10:20
+        package_data.search("9").address = address_data[19]  # updates package 9 with correct address
+
+    while len(not_delivered) > 0:
+        for current_package in not_delivered:
             current_package.delivery_status = "en route"  # sets each package delivery status to "en route"
-            package_address = current_package.address
             # calls the get_closest_package function and assigns value to next_delivery
-            next_delivery = get_closest_package(package_address, truck.packages)
+            next_delivery = get_closest_package(current_address, not_delivered)
 
             # Calculates delivery time
             distance = distance_between(int(current_address.ID), int(next_delivery.ID))
@@ -117,7 +106,7 @@ def deliver_packages(truck):
     # if all packages have been delivered return to hub
     if len(not_delivered) == 0:
         # Calculates distance from truck's current distance to get back to hub
-        distance_to_hub = distance_between(current_address.ID, address_data[0].ID)
+        distance_to_hub = distance_between(int(truck.address.ID), int(address_data[0].ID))
         truck.mileage += distance_to_hub  # adds the distance to get to hub to truck mileage
         time_to_hub = datetime.timedelta(hours=(distance_to_hub / speed))  # calculates time it takes to get to hub
         current_time = truck.current_time + time_to_hub  # adds the time to hub and current time
@@ -129,18 +118,25 @@ deliver_packages(truck1)
 deliver_packages(truck2)
 deliver_packages(truck3)
 
+
 # Calculates the total mileage of all trucks
 total_mileage = truck1.mileage + truck2.mileage + truck3.mileage
 
 
-# gives the delivery status of a package at a specified time
-def delivery_status_at_time(package, time):
+# updates the info of a package at a specified time
+def update_package_info(package, time):
+    if time < datetime.timedelta(hours=10, minutes=20):
+        package_data.search("9").address = address_data[12]  # updates package 9 with wrong address
+    else:
+        package_data.search("9").address = address_data[19]  # updates package 9 with correct address
     if package.delivery_time < time:
         package.delivery_status = "delivered"
     elif package.delivery_time > time:
         package.delivery_status = "en route"
+        package.delivery_time = None
     else:
         package.delivery_status = "at the hub"
+        package.delivery_time = None
 
 
 class Main:
@@ -160,7 +156,7 @@ class Main:
             package_input = input('Enter package ID: ')
             package = package_data.search(package_input)
 
-            delivery_status_at_time(package, correct_time_format)
+            update_package_info(package, correct_time_format)
             print("Printing package info for package ID: ", package_input, "at time: ", time_input, "...")
             print(package_data.search(package_input))
         except ValueError:
@@ -175,7 +171,7 @@ class Main:
 
             for package_ID in package_data.stored_keys:
                 package = package_data.search(str(package_ID))
-                delivery_status_at_time(package, correct_time_format)
+                update_package_info(package, correct_time_format)
                 print(package)
         except ValueError:
             print("Invalid input. Please try again.")
