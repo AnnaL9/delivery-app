@@ -1,13 +1,12 @@
 import csv
 import datetime
-from math import sqrt
-
 from Address import *
 from Package import *
 from HashTable import *
 
 
 # opens the Distance CSV file and loads it into a list
+# Space-time complexity is O(1)
 def load_distance_data():
     with open("CSV/Distance.csv", encoding='utf-8-sig') as distance_file:
         distance_data_reader = csv.reader(distance_file)
@@ -16,6 +15,7 @@ def load_distance_data():
 
 
 # opens the CSV file, creates an address object, and loads it into a list
+# Space-time complexity is O(n)
 def load_address_data(csv_file):
     address_list = list() # creates list
     with open(csv_file, encoding='utf-8-sig') as addresses:
@@ -35,6 +35,7 @@ def load_address_data(csv_file):
 
 
 # Reads the csv file, creates a package object, and puts the data into the hash table by package
+# Space-time complexity is O(n^3)
 def load_package_data(csv_file, address_data):
     package_table = HashTable()  # creates table
     with open(csv_file) as packages:

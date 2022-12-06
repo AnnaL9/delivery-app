@@ -26,6 +26,7 @@ truck3 = Truck(16, 18.0, [], 0.0, address_data[0],
 
 
 # Loads the truck with list of package objects
+# Space-time complexity is O(n)
 def load_truck(truck, list_of_packages):
     for x in list_of_packages:
         package = package_data.search(x)
@@ -46,6 +47,7 @@ load_truck(truck3, ['6', '26', '27', '28', '32', '9', '35', '39'])
 
 # Determines the distance between the current address and the next address
 # Returns float distance
+# Space-time complexity is O(n)
 def distance_between(current_address, next_address):
     distance = distance_data[next_address][current_address]
     if distance == '':
@@ -54,6 +56,7 @@ def distance_between(current_address, next_address):
 
 
 # Determines the address with the minimum distance from the current address
+# Space-time complexity is O(n^2)
 def get_closest_package(current_address, packages_in_truck):
     min_distance = None
     closest_package_address = None
@@ -69,6 +72,7 @@ def get_closest_package(current_address, packages_in_truck):
 
 
 # Delivers the packages on the truck
+# Space-time complexity is O(n^2)
 def deliver_packages(truck):
     current_address = truck.address
     speed = truck.speed
@@ -125,6 +129,7 @@ total_mileage = truck1.mileage + truck2.mileage + truck3.mileage
 
 
 # updates the info of a package at a specified time
+# Space-time complexity is O(n)
 def update_package_info(package, time):
     if time < datetime.timedelta(hours=10, minutes=20):  # If user input time is less than 10:20
         package_data.search("9").address = address_data[12]  # updates package 9 with wrong address
@@ -143,6 +148,7 @@ def update_package_info(package, time):
 
 
 # User interface for program
+# Space-time complexity is O(n^2)
 class Main:
     # User interface welcome screen with options
     print("Welcome to the WGUPS portal. Please choose an option from the menu below.")

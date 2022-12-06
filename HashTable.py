@@ -2,6 +2,7 @@
 class HashTable:
     # Constructor with optional initial capacity parameter.
     # Assigns all buckets with an empty list.
+    # Space-time complexity is O(1)
     def __init__(self, initial_capacity=40):
         # initialize the hash table with empty bucket list entries.
         self.table = []
@@ -10,6 +11,7 @@ class HashTable:
             self.table.append([])
 
     # Inserts a new item into the hash table.
+    # Space-time complexity is O(n^2)
     def insert(self, key, item):  # does both insert and update
         # get the bucket list where this item will go.
         bucket = hash(key) % len(self.table)
@@ -30,6 +32,7 @@ class HashTable:
 
     # Searches for an item with matching key in the hash table.
     # Returns the item if found, or None if not found.
+    # Space-time complexity is O(n^2)
     def search(self, key):
         # get the bucket list where this key would be.
         bucket = hash(key) % len(self.table)
@@ -44,6 +47,7 @@ class HashTable:
         return None
 
     # Removes an item with matching key from the hash table.
+    # Space-time complexity is O(n^2)
     def remove(self, key):
         # get the bucket list where this item will be removed from.
         bucket = hash(key) % len(self.table)
@@ -57,6 +61,7 @@ class HashTable:
                 self.stored_keys.remove(key)  # removes key from iterable list
 
     # Prints searched item information
+    # Space-time complexity is O(1)
     def print(self, key):
         print("Pacakge:" + str(self.search(key)))
 
