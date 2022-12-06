@@ -20,7 +20,6 @@ truck1 = Truck(16, 18.0, [], 0.0, address_data[0],
 truck2 = Truck(16, 18.0, [], 0.0, address_data[0],
                datetime.timedelta(hours=8), datetime.timedelta(hours=8, minutes=0))
 
-
 # Initiates Truck 3 object
 truck3 = Truck(16, 18.0, [], 0.0, address_data[0],
                datetime.timedelta(hours=10, minutes=20), datetime.timedelta(hours=10, minutes=20))
@@ -72,14 +71,17 @@ def get_closest_package(current_address, packages_in_truck):
 # Delivers the packages on the truck
 def deliver_packages(truck):
     current_address = truck.address
-    not_delivered = truck.packages
     speed = truck.speed
+    not_delivered = []
+    # Iterates through each package in truck package and adds to not delivered list
+    for package in truck.packages:
+        not_delivered.append(package)
 
     if truck.current_time >= datetime.timedelta(hours=10, minutes=20):  # if current time is at least 10:20
         package_data.search("9").address = address_data[19]  # updates package 9 with correct address
 
-    while len(not_delivered) > 0:
-        for current_package in not_delivered:
+    while len(not_delivered) > 0:  # While there are still packages not delivered
+        for current_package in not_delivered:  # Iterates through each package in not delivered list
             current_package.delivery_status = "en route"  # sets each package delivery status to "en route"
             # calls the get_closest_package function and assigns value to next_delivery
             next_delivery = get_closest_package(current_address, not_delivered)
@@ -118,50 +120,63 @@ deliver_packages(truck1)
 deliver_packages(truck2)
 deliver_packages(truck3)
 
-
 # Calculates the total mileage of all trucks
 total_mileage = truck1.mileage + truck2.mileage + truck3.mileage
 
 
 # updates the info of a package at a specified time
 def update_package_info(package, time):
-    if time < datetime.timedelta(hours=10, minutes=20):
+    if time < datetime.timedelta(hours=10, minutes=20):  # If user input time is less than 10:20
         package_data.search("9").address = address_data[12]  # updates package 9 with wrong address
-    else:
+    else:  # Else if the time is greater or equal to 10:20
         package_data.search("9").address = address_data[19]  # updates package 9 with correct address
-    if package.delivery_time < time:
+    if package.delivery_time < time:  # If user input time is greater than package delivery time
         package.delivery_status = "delivered"
-    elif package.delivery_time > time:
+    # If user input time is less than package delivery time and the package was not on truck3
+    elif package.delivery_time > time and (package not in truck3.packages):
         package.delivery_status = "en route"
-        package.delivery_time = None
-    else:
+        package.delivery_time = "Not yet delivered"
+    # If user input time is less than package delivery time and was on truck3
+    elif package.delivery_time > time:
         package.delivery_status = "at the hub"
-        package.delivery_time = None
+        package.delivery_time = "Not yet delivered"
 
 
+# User interface for program
 class Main:
-    # User Interface
+    # User interface welcome screen with options
     print("Welcome to the WGUPS portal. Please choose an option from the menu below.")
     user_input = input("1. Print total mileage of all trucks.\n"
                        "2. Print status and info of a specified package at a specified time. \n"
                        "3. Print status and info of ALL packages at a specified time. \n")
+    # Prints total mileage of trucks if user input is 1
     if user_input == '1':
         print("The total mileage for all trucks is: ", total_mileage)
+    # Prints package info for user specified package at user specified time
     elif user_input == "2":
         try:
             time_input = input('Enter time (HH:MM:SS): ')
             (hour, min, sec) = time_input.split(':')
+            # Converts user time to correct format for comparisons
             correct_time_format = datetime.timedelta(hours=int(hour), minutes=int(min), seconds=int(sec))
 
             package_input = input('Enter package ID: ')
+            package = package_data.search(package_input)  # searches user input in the packages hash table
+
+            update_package_info(package, correct_time_format)  # calls update package info method
+            print("Printing package info for package ID: ", package_input, "at time: ", time_input, "...")
+
+            # searches user input again in the packages hash table now that package info has been updated
             package = package_data.search(package_input)
 
-            update_package_info(package, correct_time_format)
-            print("Printing package info for package ID: ", package_input, "at time: ", time_input, "...")
-            print(package_data.search(package_input))
-        except ValueError:
+            # prints all required package info
+            print("Package ID:", package.ID, ", Address:", package.address.address, package.city, package.zip_code,
+                  ", Delivery deadline:", package.deadline, ", Package weight:", package.weight_kilos, "kilos",
+                  ", Delivery status:", package.delivery_status, ", Delivery time:", package.delivery_time)
+        except ValueError:  # exits program if input invalid
             print("Invalid input. Please try again.")
             exit()
+    # Prints package info for ALL packages at user specified time
     elif user_input == '3':
         try:
             time_input = input('Enter time (HH:MM:SS): ')
@@ -169,13 +184,17 @@ class Main:
             correct_time_format = datetime.timedelta(hours=int(hour), minutes=int(min), seconds=int(sec))
             print("Printing package info for all packages at time: ", time_input, "...")
 
-            for package_ID in package_data.stored_keys:
-                package = package_data.search(str(package_ID))
-                update_package_info(package, correct_time_format)
-                print(package)
-        except ValueError:
+            for package_ID in package_data.stored_keys:  # iterates through all packageIDs to update/print packages
+                package = package_data.search(str(package_ID))  # searches user input in the packages hash table
+                update_package_info(package, correct_time_format)  # calls update package info method
+
+                # prints all required package info
+                print("Package ID:", package.ID, ", Address:", package.address.address, package.city, package.zip_code,
+                      ", Delivery deadline:", package.deadline, ", Package weight:", package.weight_kilos, "kilos",
+                      ", Delivery status:", package.delivery_status, ", Delivery time:", package.delivery_time)
+        except ValueError:  # exits program if input invalid
             print("Invalid input. Please try again.")
             exit()
-    else:
+    else:  # exits program if input invalid
         print("Invalid input. Please try again.")
         exit()
