@@ -7,7 +7,7 @@ This application takes in address, distance, and package data from CSV files and
 
 ## Developer Information & Environment
 
-|===============================================================
-|Author             | Anna Lyons
-|IDE Version        | PyCharm 2022.2.3 (Community Edition)            
-|===============================================================
+
+Author: Anna Lyons                    
+IDE Version: PyCharm 2022.2.3 (Community Edition)       
+
